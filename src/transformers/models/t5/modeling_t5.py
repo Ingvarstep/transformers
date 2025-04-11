@@ -555,9 +555,12 @@ class T5Attention(nn.Module):
 
         scores += position_bias_masked
 
+        scores = (scores - scores.max(dim=-1, keepdim=True).values) / (2*math.sqrt(self.key_value_proj_dim))
+
         # (batch_size, n_heads, seq_length, key_length)
         attn_weights = nn.functional.softmax(scores.float(), dim=-1).type_as(scores)
         attn_weights = nn.functional.dropout(attn_weights, p=self.dropout, training=self.training)
+
 
         # Mask heads if we want to
         if layer_head_mask is not None:
