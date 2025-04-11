@@ -399,7 +399,9 @@ class MT5Attention(nn.Module):
 
         # compute scores, equivalent of torch.einsum("bnqd,bnkd->bnqk", query_states, key_states), compatible with onnx op>9
         scores = torch.matmul(query_states, key_states.transpose(3, 2))
-
+        max_values = torch.max(scores, dim=-1)
+        scores -= max_values
+        
         if position_bias is None:
             key_length = key_states.shape[-2]
             # cache position is 0-indexed so we add 1 to get the real length of queries (aka with past)
